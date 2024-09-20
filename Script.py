@@ -31,15 +31,21 @@ def read_comments_from_file(filename):
 def process_comments(input_file, output_file):
     # Read comments from the input file
     comments = read_comments_from_file(input_file)
+    num_comments = len(comments)
 
     # Prepare the result list
     results = []
 
     # Loop through each comment and get toxicity/threat scores
-    for comment in comments:
+    for idx, comment in enumerate(comments, 1):
+        
+        print(f"Processing comment {idx}/{num_comments}: {comment[:100]}")
         try:
             toxic_threat_score = get_toxic_threat_probability(comment)
-            # Append the comment, toxic and threat probabilities to the result list
+            # Output the results to the terminal
+            print(f"Toxic probability score: {toxic_threat_score['toxic_predictions']}%, Threat probability score: {toxic_threat_score['threat_predictions']}%\n")
+
+            # Append the comment, toxic, and threat probabilities to the result list
             results.append({
                 'comment': comment,
                 'toxic_predictions': toxic_threat_score['toxic_predictions'],
@@ -47,6 +53,7 @@ def process_comments(input_file, output_file):
             })
         except Exception as e:
             print(f"Error processing comment: {comment}, Error: {e}")
+
 
     # Save the results to a CSV file
     with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
