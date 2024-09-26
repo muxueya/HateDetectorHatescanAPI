@@ -1,6 +1,7 @@
 import requests
 import json
 import csv
+import pandas as pd
 
 # Function to get toxic and threat probability from Hatescan API
 def get_toxic_threat_probability(text, language='en', flag_detect_lang='False'):
@@ -21,16 +22,17 @@ def get_toxic_threat_probability(text, language='en', flag_detect_lang='False'):
     # Return the API response as JSON
     return hatescan_response.json()
 
-# Function to read comments from a text file
-def read_comments_from_file(filename):
-    with open(filename, 'r', encoding='utf-8') as file:
-        comments = [line.strip() for line in file.readlines()]
+# Function to read comments from an Excel file
+def read_comments_from_excel(filename):
+    # Load the comments from an Excel file (assuming the column name is 'comment')
+    df = pd.read_excel(filename)
+    comments = df['comment'].astype(str).tolist()  # Convert comments to a list of strings
     return comments
 
 # Main function to process the comments
 def process_comments(input_file, output_file):
-    # Read comments from the input file
-    comments = read_comments_from_file(input_file)
+    # Read comments from the Excel file
+    comments = read_comments_from_excel(input_file)
     num_comments = len(comments)
 
     # Prepare the result list
@@ -38,7 +40,6 @@ def process_comments(input_file, output_file):
 
     # Loop through each comment and get toxicity/threat scores
     for idx, comment in enumerate(comments, 1):
-        
         print(f"Processing comment {idx}/{num_comments}: {comment[:100]}")
         try:
             toxic_threat_score = get_toxic_threat_probability(comment)
@@ -54,7 +55,6 @@ def process_comments(input_file, output_file):
         except Exception as e:
             print(f"Error processing comment: {comment}, Error: {e}")
 
-
     # Save the results to a CSV file
     with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
         fieldnames = ['comment', 'toxic_predictions', 'threat_predictions']
@@ -67,8 +67,8 @@ def process_comments(input_file, output_file):
 
 # Usage
 if __name__ == '__main__':
-    # Path to the input text file with comments (one comment per line)
-    input_file = 'comments.txt'
+    # Path to the input Excel file with comments
+    input_file = 'incels-5000.xlsx'
     
     # Path to the output CSV file where results will be saved
     output_file = 'hatescan_results.csv'
