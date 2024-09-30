@@ -2,14 +2,21 @@ import pandas as pd
 import krippendorff
 import numpy as np
 
-# Load the Excel file
-df = pd.read_excel('Sample_toxic_comments.xlsx')
-
-# Extract only the columns for the annotators (a, b, c, d, e)
-annotations = df[['a', 'b', 'c', 'd', 'e']].values.T  # Transpose to match the input format for Krippendorff's alpha
-
-# Calculate Krippendorff's alpha for binary data (nominal scale)
-alpha = krippendorff.alpha(reliability_data=annotations, level_of_measurement='nominal')
-
-# Print the result
-print(f"Krippendorff's Alpha: {alpha:.3f}")
+while True:
+    file = input("Enter the file name: ")
+    if file == "exit" or file == "":
+        break
+    else:
+        try:        
+            df = pd.read_excel(file)
+            annotations = df[['a', 'b', 'c', 'd', 'e']].values.T
+            alpha = krippendorff.alpha(reliability_data=annotations, level_of_measurement='nominal')
+            print(f"{file} Krippendorff's Alpha: {alpha:.3f}")
+        except FileNotFoundError:
+            print("File not found. Please try again.")
+        except KeyError:
+            print("The file does not contain the required columns. Please try again.")
+        except ValueError:
+            print("The file contains invalid data. Please try again.")
+        except Exception as e:
+            print(f"An error occurred: {e}. Please try again.")
